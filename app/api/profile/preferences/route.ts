@@ -1,0 +1,10 @@
+import {NextResponse} from 'next/server';
+import {z} from 'zod';
+import {currentUser} from '@/lib/session';
+import {userPreferences,saveCustomerPreferences,saveStaffPreferences} from '@/lib/user-preferences';
+import {saveAdminPreferences} from '@/lib/admin-preferences';
+import {sameOrigin} from '@/lib/origin';
+import {cloudinaryImage,modes,themes,ThemeId,Appearance} from '@/lib/appearance';
+const schema=z.object({mode:z.enum(modes),theme:z.enum(themes.map(t=>t.id) as [ThemeId,...ThemeId[]]),avatarUrl:z.union([z.literal(''),z.string().url().refine(v=>cloudinaryImage.test(v))])}).strict();
+export async function GET(){const user=await currentUser();if(!user)return NextResponse.json({error:'Please sign in to view your profile.'},{status:401});try{return NextResponse.json(await userPreferences(user))}catch{return NextResponse.json({error:'Your profile settings could not be loaded.'},{status:503})}}
+export async function PUT(req:Request){const user=await currentUser();if(!user)return NextResponse.json({error:'Please sign in to save your profile.'},{status:401});if(!sameOrigin(req))return NextResponse.json({error:'Invalid origin'},{status:403});let parsed;try{parsed=schema.safeParse(await req.json())}catch{return NextResponse.json({error:'Invalid request'},{status:400})}if(!parsed.success)return NextResponse.json({error:'Choose a display mode, colour theme and profile picture.'},{status:400});try{const saved=user.role==='admin'?await saveAdminPreferences(parsed.data as Appearance):user.role==='customer'?await saveCustomerPreferences(user.id,parsed.data as Appearance):await saveStaffPreferences(user.id,parsed.data as Appearance);return NextResponse.json({preferences:saved,message:'Your profile and appearance settings are saved.'})}catch{if(!process.env.MONGODB_URI)return NextResponse.json({error:'Profile saving is temporarily unavailable. Please try again later.'},{status:503});return NextResponse.json({error:'Your profile settings could not be saved. Please try again.'},{status:503})}}

@@ -1,0 +1,3 @@
+import {Shell} from './shell';
+import Link from 'next/link';
+export default function PublicUnavailable(){return <Shell><section className="hero"><div className="hero-copy"><div className="eyebrow">IMIKIA</div><h1>A world of<br/><em>possibilities.</em></h1><p>Our collection is being updated. Please check back shortly.</p><Link className="button" href="#collection">Explore the collection ↓</Link></div><div className="hero-art" aria-hidden="true"><div className="orb"/><span className="giant">i.</span></div></section><section className="section" id="collection"><div className="eyebrow">OUR COLLECTION</div><h2>Products will be available soon.</h2><p>Thank you for your patience.</p></section></Shell>}

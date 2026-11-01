@@ -1,0 +1,8 @@
+'use client';
+import {createContext,useContext,useState,useEffect,useCallback} from 'react';
+import {Appearance,defaultAppearance} from '@/lib/appearance';
+import type {SessionUser} from '@/lib/session';
+type ThemeContext={appearance:Appearance;preview:(next:Partial<Appearance>)=>void;user:SessionUser|null;authenticated:boolean;role:SessionUser['role']|null;profileOpen:boolean;openProfile:()=>void;closeProfile:()=>void};
+const Context=createContext<ThemeContext|null>(null);
+export default function ThemeProvider({initial=defaultAppearance,user,children}:{initial?:Appearance;user:SessionUser|null;children:React.ReactNode}){const[appearance,setAppearance]=useState(initial),[profileOpen,setProfileOpen]=useState(false);const preview=useCallback((next:Partial<Appearance>)=>setAppearance(current=>({...current,...next})),[]);useEffect(()=>{const media=window.matchMedia('(prefers-color-scheme: dark)');const apply=()=>{document.documentElement.dataset.mode=appearance.mode==='system'?(media.matches?'dark':'light'):appearance.mode;document.documentElement.dataset.theme=appearance.theme;document.documentElement.style.colorScheme=document.documentElement.dataset.mode};apply();media.addEventListener('change',apply);return()=>media.removeEventListener('change',apply)},[appearance.mode,appearance.theme]);return <Context.Provider value={{appearance,preview,user,authenticated:!!user,role:user?.role||null,profileOpen,openProfile:()=>setProfileOpen(true),closeProfile:()=>setProfileOpen(false)}}>{children}</Context.Provider>}
+export function useAppearance(){const context=useContext(Context);if(!context)throw new Error('Appearance controls require ThemeProvider');return context}

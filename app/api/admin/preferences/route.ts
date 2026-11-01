@@ -1,0 +1,10 @@
+import {NextResponse} from 'next/server';
+import {z} from 'zod';
+import {isAdmin} from '@/lib/auth';
+import {sameOrigin} from '@/lib/origin';
+import {db} from '@/lib/db';
+import {adminPreferences} from '@/lib/admin-preferences';
+import {modes,themes} from '@/lib/appearance';
+const schema=z.object({mode:z.enum(modes),theme:z.enum(themes.map(t=>t.id) as ['original','ocean','violet','emerald','sunset','indigo','rose']),avatarUrl:z.union([z.literal(''),z.string().url().refine(v=>{try{const u=new URL(v);return u.protocol==='https:'&&u.hostname==='res.cloudinary.com'}catch{return false}})])}).strict();
+export async function GET(){if(!await isAdmin())return NextResponse.json({error:'Unauthorised'},{status:401});if(!process.env.MONGODB_URI)return NextResponse.json({error:'Connect MongoDB to load your saved profile preferences.'},{status:503});try{return NextResponse.json(await adminPreferences())}catch{return NextResponse.json({error:'Could not load profile preferences.'},{status:503})}}
+export async function PUT(req:Request){if(!await isAdmin())return NextResponse.json({error:'Unauthorised'},{status:401});if(!sameOrigin(req))return NextResponse.json({error:'Invalid origin'},{status:403});let parsed;try{parsed=schema.safeParse(await req.json())}catch{return NextResponse.json({error:'Invalid request'},{status:400})}if(!parsed.success)return NextResponse.json({error:'Choose a valid mode, colour theme and Cloudinary image.'},{status:400});if(!process.env.MONGODB_URI||!process.env.ADMIN_EMAIL)return NextResponse.json({error:'Theme preview is active. Connect MongoDB to save your profile settings.'},{status:503});try{const database=await db();await database.collection('admin_preferences').createIndex({email:1},{unique:true});await database.collection('admin_preferences').updateOne({email:process.env.ADMIN_EMAIL.trim().toLowerCase()},{$set:{...parsed.data,updatedAt:new Date()}},{upsert:true});return NextResponse.json({preferences:parsed.data,message:'Profile preferences saved.'})}catch{return NextResponse.json({error:'Could not save profile preferences. Your preview is still active.'},{status:503})}}

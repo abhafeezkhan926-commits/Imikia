@@ -1,0 +1,8 @@
+import {NextResponse} from 'next/server';
+import {ObjectId} from 'mongodb';
+import {db} from '@/lib/db';
+import {canAccess} from '@/lib/auth';
+import {logActivity} from '@/lib/activity';
+import {sameOrigin} from '@/lib/origin';
+export async function GET(){if(!await canAccess('inquiries'))return NextResponse.json({error:'Unauthorised'},{status:401});try{return NextResponse.json(await(await db()).collection('inquiries').find({}).sort({createdAt:-1}).limit(100).toArray())}catch{return NextResponse.json({error:'Database unavailable'},{status:503})}}
+export async function PATCH(req:Request){if(!await canAccess('inquiries'))return NextResponse.json({error:'Unauthorised'},{status:401});if(!sameOrigin(req))return NextResponse.json({error:'Invalid origin'},{status:403});let body;try{body=await req.json()}catch{return NextResponse.json({error:'Invalid request'},{status:400})}const{id,status}=body||{};if(typeof id!=='string'||!['new','replied','closed'].includes(status))return NextResponse.json({error:'Invalid request'},{status:400});try{const database=await db();let query;try{query={_id:new ObjectId(id)}}catch{return NextResponse.json({error:'Invalid inquiry'},{status:400})}const inquiry=await database.collection('inquiries').findOne(query);if(!inquiry)return NextResponse.json({error:'Inquiry not found'},{status:404});await database.collection('inquiries').updateOne(query,{$set:{status}});await logActivity('Inquiry marked '+status,String(inquiry.email||inquiry.name||id));return NextResponse.json({ok:true})}catch{return NextResponse.json({error:'Unable to update inquiry'},{status:503})}}

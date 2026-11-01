@@ -1,0 +1,4 @@
+import {db} from './db';
+import {defaultAppearance,normalizeAppearance,Appearance} from './appearance';
+export async function adminPreferences():Promise<Appearance>{if(!process.env.MONGODB_URI||!process.env.ADMIN_EMAIL)return defaultAppearance;const value=await(await db()).collection('admin_preferences').findOne({email:process.env.ADMIN_EMAIL.trim().toLowerCase()});return normalizeAppearance(value as Partial<Appearance>|null)}
+export async function saveAdminPreferences(appearance:Appearance){if(!process.env.MONGODB_URI||!process.env.ADMIN_EMAIL)throw new Error('Profile saving is not configured');const value=normalizeAppearance(appearance);const collection=(await db()).collection('admin_preferences');await collection.createIndex({email:1},{unique:true});await collection.updateOne({email:process.env.ADMIN_EMAIL.trim().toLowerCase()},{$set:{...value,updatedAt:new Date()}},{upsert:true});return value}

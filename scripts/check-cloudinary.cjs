@@ -1,0 +1,4 @@
+const {loadEnvConfig}=require('@next/env');const path=require('node:path');
+loadEnvConfig(path.resolve(__dirname,'..'),false);
+const {v2:cloudinary}=require('cloudinary');
+(async()=>{if(!process.env.CLOUDINARY_CLOUD_NAME||!process.env.CLOUDINARY_API_KEY||!process.env.CLOUDINARY_API_SECRET){console.log(JSON.stringify({cloudinary:'not-configured'}));process.exitCode=1;return}cloudinary.config({cloud_name:process.env.CLOUDINARY_CLOUD_NAME,api_key:process.env.CLOUDINARY_API_KEY,api_secret:process.env.CLOUDINARY_API_SECRET});try{const result=await cloudinary.api.ping();console.log(JSON.stringify({cloudinary:result.status==='ok'?'connected':'unexpected-response'}));if(result.status!=='ok')process.exitCode=1}catch(error){console.log(JSON.stringify({cloudinary:'failed',status:error.http_code||null,errorType:error.name||'CloudinaryError'}));process.exitCode=1}})();

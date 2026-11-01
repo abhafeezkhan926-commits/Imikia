@@ -1,0 +1,4 @@
+import {v2 as cloudinary} from 'cloudinary';
+export function cloudinaryReady(){return Boolean(process.env.CLOUDINARY_API_SECRET&&process.env.CLOUDINARY_API_KEY&&process.env.CLOUDINARY_CLOUD_NAME)}
+export function validMediaType(type:string,allowed:string[]){return allowed.includes(type)}
+export async function uploadAsset(file:File,allowed:string[],maxBytes:number){if(!cloudinaryReady())throw new Error('Image storage is not configured');if(!validMediaType(file.type,allowed)||file.size>maxBytes||file.size===0)throw new Error('Invalid image');cloudinary.config({cloud_name:process.env.CLOUDINARY_CLOUD_NAME,api_key:process.env.CLOUDINARY_API_KEY,api_secret:process.env.CLOUDINARY_API_SECRET});return cloudinary.uploader.upload('data:'+file.type+';base64,'+Buffer.from(await file.arrayBuffer()).toString('base64'),{folder:'imikia',resource_type:'image'})}

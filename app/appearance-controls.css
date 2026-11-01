@@ -1,0 +1,5 @@
+/* Keep vivid theme swatches while preserving contrast for white control labels. */
+.button:not(.secondary):not(.light):not(.text-button):not(.danger-button),.dashboard-sidebar nav>a.active{background:linear-gradient(#00000059,#00000059),var(--accent-gradient)}
+.button:not(.secondary):not(.light):not(.text-button):hover:not(:disabled){filter:none;transform:translateY(-1px)}
+.mode-options>button[aria-pressed=true]{color:var(--ink)}
+.theme-swatch>svg{background:#00000070;border-radius:50%;padding:2px;width:19px;height:19px}

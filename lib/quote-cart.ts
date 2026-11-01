@@ -1,0 +1,9 @@
+import {createHmac,randomBytes,timingSafeEqual} from 'node:crypto';
+import {cookies} from 'next/headers';
+import {db} from './db';
+export const CART_COOKIE='imikia_quote_cart';
+export type QuoteItem={productSlug:string;name:string;image:string;sourcePath:string;quantity:number};
+function signature(id:string){const secret=process.env.ADMIN_SESSION_SECRET;if(!secret||secret.length<32)throw Error('Cart session unavailable');return createHmac('sha256',secret).update('quote-cart:'+id).digest('hex')}
+export async function cartIdentity(){const value=(await cookies()).get(CART_COOKIE)?.value||'';const[id,given]=value.split('.');if(/^[a-f0-9]{48}$/.test(id||'')){const expected=Buffer.from(signature(id),'hex');const actual=Buffer.from(given||'','hex');if(actual.length===expected.length&&timingSafeEqual(actual,expected))return {owner:id,token:value}}const owner=randomBytes(24).toString('hex');return {owner,token:owner+'.'+signature(owner)}}
+export async function cartItems(owner:string):Promise<QuoteItem[]>{const database=await db();const rows=await database.collection('quote_cart_items').find({owner,expiresAt:{$gt:new Date()}}).sort({createdAt:1}).toArray();if(!rows.length)return [];const products=await database.collection('products').find({slug:{$in:rows.map(r=>r.productSlug)}},{projection:{slug:1,name:1,image:1,sourcePath:1}}).toArray();return rows.flatMap(row=>{const product=products.find(p=>p.slug===row.productSlug);return product?[{productSlug:String(product.slug),name:String(product.name),image:String(product.image||''),sourcePath:String(product.sourcePath||'/products/'+product.slug),quantity:Number(row.quantity)}]:[]})}
+export async function cartCollection(){const collection=(await db()).collection('quote_cart_items');await collection.createIndex({owner:1,productSlug:1},{unique:true});await collection.createIndex({expiresAt:1},{expireAfterSeconds:0});return collection}

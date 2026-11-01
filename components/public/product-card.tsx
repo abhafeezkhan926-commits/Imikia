@@ -1,0 +1,9 @@
+'use client';
+import Image from 'next/image';
+import Link from 'next/link';
+import {ArrowUpRight,Plus,ImageOff} from 'lucide-react';
+import {ProductView,availability} from '@/lib/ui-types';
+import {useState} from 'react';
+import AddToQuote from './add-to-quote';
+export function ProductImage({src,alt,priority=false}:{src?:string;alt:string;priority?:boolean}){const[failed,setFailed]=useState(false);let optimisable=false;try{optimisable=['res.cloudinary.com','www.imikia.com'].includes(new URL(src||'').hostname)}catch{}if(src&&!optimisable&&!failed)return <img src={src} alt={alt} loading={priority?'eager':'lazy'} onError={()=>setFailed(true)} style={{width:'100%',height:'100%',objectFit:'contain'}}/>;return src&&!failed?<Image src={src} alt={alt} fill sizes="(max-width:640px) 90vw,(max-width:1000px) 45vw,30vw" priority={priority} onError={()=>setFailed(true)} style={{objectFit:'contain'}}/>:<div className="image-placeholder"><ImageOff size={30}/><span>Image unavailable</span></div>}
+export function ProductCard({product:p,category}:{product:ProductView;category?:string}){const stock=availability(p);return <article className="product-card"><Link href={'/products/'+p.slug} className="product-image"><span className="product-tag">{category||p.category.replaceAll('-',' ')}</span><ProductImage src={p.image} alt={p.name}/><span className="image-arrow"><ArrowUpRight size={19}/></span></Link><div className="product-card-body"><div className="product-meta"><span>{p.sku?'SKU '+p.sku:'Specifications on request'}</span><span className={'status-dot '+stock.tone}>{stock.label}</span></div><h3><Link href={'/products/'+p.slug}>{p.name}</Link></h3><p>{p.description}</p><div className="product-actions"><Link href={'/products/'+p.slug}>View details <ArrowUpRight size={16}/></Link><AddToQuote slug={p.slug} compact/></div></div></article>}

@@ -1,0 +1,6 @@
+'use client';
+import {Palette,Camera,ArrowUpRight,ShieldCheck,UserRound} from 'lucide-react';
+import {useAppearance} from './theme-provider';
+import {ProfileAvatar} from './profile-menu';
+import {themes} from '@/lib/appearance';
+export default function ProfileSettings({name='Administrator',email,role='admin'}:{name?:string;email?:string;role?:string}){const{appearance,openProfile}=useAppearance();return <section className="dashboard-card personal-profile"><div className="personal-profile-cover"/><div className="personal-profile-body"><ProfileAvatar/><div className="personal-profile-identity"><h2>{name}</h2>{email&&<p>{email}</p>}<span className="badge neutral">{role==='admin'?<><ShieldCheck size={12}/>Authorised admin</>:<><UserRound size={12}/>{role==='customer'?'Business account':role.toUpperCase()+' account'}</>}</span></div><button className="button small" onClick={openProfile}><Camera size={15}/>Edit picture & appearance</button></div><div className="profile-preference-summary"><div><span>Display mode</span><b>{appearance.mode}</b></div><div><span>Colour theme</span><b>{themes.find(t=>t.id===appearance.theme)?.name}</b></div><button className="text-link" onClick={openProfile}><Palette size={15}/>Customise your workspace<ArrowUpRight size={15}/></button></div></section>}
