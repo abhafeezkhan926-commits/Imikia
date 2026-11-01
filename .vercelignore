@@ -1,0 +1,44 @@
+# Credentials and environment files (including examples)
+.env*
+env
+env.*
+*.env
+*.env.*
+.npmrc
+.netrc
+.git-credentials
+credentials*.json
+secrets*.json
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+.ssh/
+.aws/
+.codex/
+.agents/
+
+# Dependencies and generated builds
+node_modules/
+node_modules.incomplete/
+.next/
+out/
+dist/
+build/
+coverage/
+.vercel/
+*.tsbuildinfo
+
+# Local diagnostics, screenshots, caches and editor files
+tmp/
+.cache/
+*.log
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+.vercel
+.env*
+.git/
+tmp
