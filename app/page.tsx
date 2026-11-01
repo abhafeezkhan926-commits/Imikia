@@ -1,5 +1,4 @@
-import Original from '@/components/original/page';
+import HomePage from '@/components/public/home-page';
 export const dynamic='force-dynamic';
-export default function Page(){return <Original path="/"/>}
-export {homeMetadata as generateMetadata};
-async function homeMetadata(){return (await import('@/lib/original-render')).originalMetadata('/')}
+export const metadata={title:'Ride-On Vehicles for B2B Buyers',description:'Discover children’s electric ride-on vehicles, pedal karts and sourcing support for international buyers.'};
+export default function Page(){return <HomePage/>}

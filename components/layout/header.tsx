@@ -13,10 +13,17 @@ const drawerId='site-navigation-drawer';
 export function Header({config}:{config:SiteConfig}){
   const[drawerOpen,setDrawerOpen]=useState(false);
   const[count,setCount]=useState<number|null>(null);
+  const[scrolled,setScrolled]=useState(false);
   const{user,openProfile}=useAppearance();
   const path=usePathname();
 
   useEffect(()=>setDrawerOpen(false),[path]);
+
+  useEffect(()=>{
+    const update=()=>setScrolled(window.scrollY>18);
+    update();window.addEventListener('scroll',update,{passive:true});
+    return()=>window.removeEventListener('scroll',update);
+  },[]);
 
   useEffect(()=>{
     const controller=new AbortController();
@@ -56,7 +63,7 @@ export function Header({config}:{config:SiteConfig}){
       <span><span className="live-dot"/> YOUR GLOBAL RIDE-ON SOURCING PARTNER</span>
       <span><Globe2 size={12}/> International business. Personal support.</span>
     </div>
-    <header className="site-header">
+    <header className={'site-header'+(scrolled?' is-scrolled':'')}>
       <Link href="/" className="logo" aria-label="IMIKIA home">{config?.brand||'imikia'}<span>®</span><small>THE WORLD OF RIDE-ON</small></Link>
       <nav className="desktop-nav" aria-label="Main navigation">
         {links.map(([label,href])=><Link href={href} key={href} aria-current={path===href?'page':undefined}>{label}{label==='Categories'&&<ChevronDown size={12}/>}</Link>)}
