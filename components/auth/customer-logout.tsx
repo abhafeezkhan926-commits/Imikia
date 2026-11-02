@@ -1,6 +1,6 @@
 'use client';
 import {useState} from 'react';
-import {Spinner} from '@/components/ui/primitives';
+
 export default function CustomerLogout(){
   const[error,setError]=useState('');
   const[busy,setBusy]=useState(false);
@@ -13,5 +13,5 @@ export default function CustomerLogout(){
       setError('Unable to sign out. Please try again.');
     }catch{setError('Unable to sign out. Please try again.')}
     setBusy(false);
-  }}>{busy&&<Spinner/>}{busy?'Signing out…':'Sign out'}</button>{error&&<p role="alert">{error}</p>}</>;
+  }}>{'Sign out'}</button>{error&&<p role="alert">{error}</p>}</>;
 }

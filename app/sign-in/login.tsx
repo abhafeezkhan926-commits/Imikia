@@ -3,7 +3,7 @@ import {useState} from 'react';
 import Link from 'next/link';
 import {ArrowUpRight,ShieldCheck} from 'lucide-react';
 import {PasswordInput,AuthArtwork} from '@/components/auth/auth-flow';
-import {Feedback,Spinner} from '@/components/ui/primitives';
+import {Feedback} from '@/components/ui/primitives';
 
 export default function Login({next=''}:{next?:string}){
   const[busy,setBusy]=useState(false);
@@ -39,7 +39,7 @@ export default function Login({next=''}:{next?:string}){
           <PasswordInput autoComplete="current-password" minLength={1}/>
           <div className="auth-form-options"><span><ShieldCheck size={14}/>Secure account access</span><Link href="/forgot-password">Forgot password?</Link></div>
           <Feedback error message={message}/>
-          <button className="button full-button" disabled={busy}>{busy?<Spinner/>:<ArrowUpRight size={18}/>} {busy?'Signing in…':'Sign in to your account'}</button>
+          <button className="button full-button" disabled={busy}>{<ArrowUpRight size={18}/>} {'Sign in to your account'}</button>
         </form>
         <div className="auth-switch">New to IMIKIA? <Link href="/register">Create account</Link></div>
       </div>

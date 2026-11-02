@@ -2,7 +2,7 @@
 import {useState} from 'react';
 import Link from 'next/link';
 import {AuthArtwork,PasswordInput} from './auth-flow';
-import {Feedback,Spinner} from '@/components/ui/primitives';
+import {Feedback} from '@/components/ui/primitives';
 export default function RegisterForm(){
   const[busy,setBusy]=useState(false);
   const[message,setMessage]=useState('');
@@ -42,7 +42,7 @@ export default function RegisterForm(){
           <PasswordInput/>
           <PasswordInput name="confirmPassword" label="Confirm password"/>
           <Feedback error message={message}/>
-          <button className="button full-button" disabled={busy}>{busy?<Spinner/>:null}{busy?'Creating account…':'Create account'}</button>
+          <button className="button full-button" disabled={busy}>{null}{'Create account'}</button>
         </form>
         <div className="auth-switch">Already have an account? <Link href="/sign-in">Sign in</Link></div>
       </div>
