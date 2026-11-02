@@ -16,6 +16,9 @@ export function Header({config}:{config:SiteConfig}){
   const[scrolled,setScrolled]=useState(false);
   const{user,openProfile}=useAppearance();
   const path=usePathname();
+  const[pendingPath,setPendingPath]=useState<string|null>(null);
+  useEffect(()=>setPendingPath(null),[path]);
+  useEffect(()=>{const reset=()=>setPendingPath(null);window.addEventListener('navigation-feedback-reset',reset);return()=>window.removeEventListener('navigation-feedback-reset',reset)},[]);
 
   useEffect(()=>setDrawerOpen(false),[path]);
 
@@ -66,7 +69,7 @@ export function Header({config}:{config:SiteConfig}){
     <header className={'site-header'+(scrolled?' is-scrolled':'')}>
       <Link href="/" className="logo" aria-label="IMIKIA home">{config?.brand||'imikia'}<span>®</span><small>THE WORLD OF RIDE-ON</small></Link>
       <nav className="desktop-nav" aria-label="Main navigation">
-        {links.map(([label,href])=><Link href={href} key={href} aria-current={path===href?'page':undefined}>{label}{label==='Categories'&&<ChevronDown size={12}/>}</Link>)}
+        {links.map(([label,href])=><Link href={href} key={href} prefetch={true} onNavigate={()=>setPendingPath(href)} aria-current={(pendingPath||path)===href?'page':undefined}>{label}{label==='Categories'&&<ChevronDown size={12}/>}</Link>)}
       </nav>
       <div className="header-actions">
         {user
@@ -88,7 +91,7 @@ export function Header({config}:{config:SiteConfig}){
         <button className="icon-button" aria-label="Close menu" onClick={closeDrawer}><X size={19}/></button>
       </div>
       <nav aria-label="Mobile navigation">
-        {links.map(([label,href])=><Link href={href} key={href} aria-current={path===href?'page':undefined} onClick={closeDrawer}>{label}<ArrowUpRight size={14}/></Link>)}
+        {links.map(([label,href])=><Link href={href} key={href} prefetch={true} onNavigate={()=>setPendingPath(href)} aria-current={(pendingPath||path)===href?'page':undefined} onClick={closeDrawer}>{label}<ArrowUpRight size={14}/></Link>)}
       </nav>
       <div className="site-drawer-account">
         {user?<>
